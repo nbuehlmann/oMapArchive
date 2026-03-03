@@ -26,7 +26,7 @@ const EXT_TO_FORMAT: Record<string, OriginalFormat> = {
 const uploadSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200),
   scale: z.coerce
-    .number({ invalid_type_error: 'Scale must be a number' })
+    .number({ error: 'Scale must be a number' })
     .int('Scale must be a whole number')
     .positive('Scale must be positive'),
   equidistance: z.preprocess(
@@ -81,7 +81,7 @@ export const uploadMapAction = async (
   })
 
   if (!parsed.success) {
-    const first = parsed.error.errors[0]
+    const first = parsed.error.issues[0]
     return first?.message ?? 'Invalid input'
   }
 
