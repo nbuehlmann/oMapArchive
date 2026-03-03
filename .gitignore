@@ -32,6 +32,9 @@ pnpm-debug.log*
 coverage/
 .nyc_output/
 
+# Claude Code local settings (personal overrides — not shared)
+.claude/settings.local.json
+
 # Misc
 *.tsbuildinfo
 next-env.d.ts

@@ -4,12 +4,10 @@ import {
   customType,
   index,
   jsonb,
-  numeric,
   pgEnum,
   pgTable,
   text,
   timestamp,
-  uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core'
 
