@@ -35,6 +35,9 @@ coverage/
 # Claude Code local settings (personal overrides — not shared)
 .claude/settings.local.json
 
+# Local file storage (dev fallback for Azure Blob Storage)
+.local-storage/
+
 # Misc
 *.tsbuildinfo
 next-env.d.ts
