@@ -1,0 +1,14 @@
+version: 2
+updates:
+  - package-ecosystem: npm # pnpm uses the npm ecosystem
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "03:00"
+      timezone: UTC
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+    commit-message:
+      prefix: "chore(deps)"
