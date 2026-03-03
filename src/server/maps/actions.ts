@@ -3,13 +3,14 @@
 import { revalidatePath } from 'next/cache'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { and, eq } from 'drizzle-orm'
+import { and, eq, sql } from 'drizzle-orm'
 import { z } from 'zod'
 import { auth } from '@/server/auth'
 import { db } from '@/server/db'
 import { maps, originalFormatEnum } from '@/server/db/schema'
 import { deleteOriginal, uploadOriginal } from '@/lib/storage/blob-client'
 import { mapProcessingQueue } from '@/server/processing/queue'
+import { computeWorldFile, type ControlPoint } from '@/lib/georef/transform'
 
 type OriginalFormat = (typeof originalFormatEnum.enumValues)[number]
 
@@ -153,6 +154,58 @@ export const getMapStatusAction = async (
     .then((r) => r[0] ?? null)
 
   return row?.processingStatus ?? null
+}
+
+export const saveGeoreferenceAction = async (
+  mapId: string,
+  controlPoints: ControlPoint[],
+): Promise<{ ok: true } | { error: string }> => {
+  const session = await auth()
+  if (!session?.user?.id) return { error: 'Not authenticated' }
+
+  if (controlPoints.length < 3) return { error: 'At least 3 control points required' }
+
+  // Verify ownership
+  const map = await db
+    .select({ id: maps.id })
+    .from(maps)
+    .where(and(eq(maps.id, mapId), eq(maps.userId, session.user.id)))
+    .then((r) => r[0] ?? null)
+
+  if (!map) return { error: 'Map not found' }
+
+  // Server-side recompute — never trust client-supplied transform
+  const { worldFile, transformType } = computeWorldFile(controlPoints)
+
+  const pts = controlPoints
+  const pointGeoms = pts.map((p) => sql`ST_MakePoint(${p.lng}, ${p.lat})`)
+  const collectExpr = sql`ST_Collect(ARRAY[${sql.join(pointGeoms, sql`, `)}])`
+
+  await db.execute(sql`
+    INSERT INTO map_georeferences (
+      id, map_id, control_points, transform_type, world_file,
+      bounding_poly, center_point, georeferenced_at
+    ) VALUES (
+      gen_random_uuid(),
+      ${mapId},
+      ${JSON.stringify(pts)}::jsonb,
+      ${transformType}::"transform_type",
+      ${JSON.stringify(worldFile)}::jsonb,
+      ST_ConvexHull(${collectExpr}),
+      ST_Centroid(${collectExpr}),
+      NOW()
+    )
+    ON CONFLICT (map_id) DO UPDATE SET
+      control_points    = EXCLUDED.control_points,
+      transform_type    = EXCLUDED.transform_type,
+      world_file        = EXCLUDED.world_file,
+      bounding_poly     = EXCLUDED.bounding_poly,
+      center_point      = EXCLUDED.center_point,
+      georeferenced_at  = NOW()
+  `)
+
+  revalidatePath(`/maps/${mapId}`)
+  return { ok: true }
 }
 
 export const toggleMapPublicAction = async (
