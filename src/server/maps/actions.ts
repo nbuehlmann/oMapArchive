@@ -8,6 +8,7 @@ import { auth } from '@/server/auth'
 import { db } from '@/server/db'
 import { maps, originalFormatEnum } from '@/server/db/schema'
 import { deleteOriginal, uploadOriginal } from '@/lib/storage/blob-client'
+import { mapProcessingQueue } from '@/server/processing/queue'
 
 type OriginalFormat = (typeof originalFormatEnum.enumValues)[number]
 
@@ -106,6 +107,12 @@ export const uploadMapAction = async (
     yearUpdated: parsed.data.yearUpdated ?? null,
     cartographer: parsed.data.cartographer ?? null,
     publisher: parsed.data.publisher ?? null,
+  })
+
+  await mapProcessingQueue.add('process-map', {
+    mapId,
+    originalFileUrl,
+    originalFormat: format,
   })
 
   redirect('/maps')
