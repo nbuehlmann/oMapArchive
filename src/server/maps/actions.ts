@@ -28,7 +28,12 @@ const uploadSchema = z.object({
     .positive('Scale must be positive'),
   equidistance: z.preprocess(
     (v) => (v === '' ? undefined : v),
-    z.coerce.number().positive('Equidistance must be positive').optional(),
+    z.coerce
+      .number()
+      .min(1, 'Equidistance must be at least 1 m')
+      .max(1000, 'Equidistance must be at most 1000 m')
+      .multipleOf(0.5, 'Equidistance must be a multiple of 0.5')
+      .optional(),
   ),
   yearUpdated: z.preprocess(
     (v) => (v === '' ? undefined : v),
