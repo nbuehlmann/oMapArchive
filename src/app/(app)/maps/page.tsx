@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { desc, eq } from 'drizzle-orm'
 import { auth } from '@/server/auth'
 import { db } from '@/server/db'
@@ -28,13 +29,12 @@ const MapsPage = async () => {
             {userMaps.length === 1 ? '1 map' : `${userMaps.length} maps`}
           </p>
         </div>
-        {/* Upload button — implemented in a future issue */}
-        <button
-          disabled
-          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground opacity-50 cursor-not-allowed"
+        <Link
+          href="/maps/upload"
+          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-ring transition-opacity"
         >
           Upload map
-        </button>
+        </Link>
       </div>
 
       {userMaps.length === 0 ? (

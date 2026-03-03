@@ -17,9 +17,12 @@ export const MapCard = ({ map }: MapCardProps) => {
     <div className="rounded-lg border border-border bg-card p-4 shadow-sm hover:shadow-md transition-shadow space-y-3">
       <div>
         <h3 className="font-medium text-card-foreground leading-tight line-clamp-2">{map.title}</h3>
-        {map.description && (
-          <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{map.description}</p>
-        )}
+        <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+          {map.scale && <span>1 : {map.scale.toLocaleString()}</span>}
+          {map.equidistance && <span>{map.equidistance} m</span>}
+          {map.yearUpdated && <span>{map.yearUpdated}</span>}
+          {map.cartographer && <span>{map.cartographer}</span>}
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-1.5">
