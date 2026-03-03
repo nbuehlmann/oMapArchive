@@ -1,0 +1,391 @@
+{
+  "id": "380c24a2-0bb6-4559-afb2-94edd4f53536",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.map_georeferences": {
+      "name": "map_georeferences",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "map_id": {
+          "name": "map_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "control_points": {
+          "name": "control_points",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "transform_type": {
+          "name": "transform_type",
+          "type": "transform_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "world_file": {
+          "name": "world_file",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bounding_poly": {
+          "name": "bounding_poly",
+          "type": "geometry(Polygon, 4326)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "center_point": {
+          "name": "center_point",
+          "type": "geometry(Point, 4326)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "georeferenced_at": {
+          "name": "georeferenced_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "map_georeferences_bounding_poly_idx": {
+          "name": "map_georeferences_bounding_poly_idx",
+          "columns": [
+            {
+              "expression": "bounding_poly",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "gist",
+          "with": {}
+        },
+        "map_georeferences_center_point_idx": {
+          "name": "map_georeferences_center_point_idx",
+          "columns": [
+            {
+              "expression": "center_point",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "gist",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "map_georeferences_map_id_maps_id_fk": {
+          "name": "map_georeferences_map_id_maps_id_fk",
+          "tableFrom": "map_georeferences",
+          "tableTo": "maps",
+          "columnsFrom": [
+            "map_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "map_georeferences_map_id_unique": {
+          "name": "map_georeferences_map_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "map_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.maps": {
+      "name": "maps",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "original_format": {
+          "name": "original_format",
+          "type": "original_format",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "original_file_url": {
+          "name": "original_file_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "processed_url": {
+          "name": "processed_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tile_base_url": {
+          "name": "tile_base_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "processing_status": {
+          "name": "processing_status",
+          "type": "processing_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pending'"
+        },
+        "processing_error": {
+          "name": "processing_error",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_public": {
+          "name": "is_public",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "share_token": {
+          "name": "share_token",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "uploaded_at": {
+          "name": "uploaded_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "maps_user_id_processing_status_idx": {
+          "name": "maps_user_id_processing_status_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "processing_status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "maps_share_token_idx": {
+          "name": "maps_share_token_idx",
+          "columns": [
+            {
+              "expression": "share_token",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"maps\".\"is_public\" = true",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "maps_user_id_users_id_fk": {
+          "name": "maps_user_id_users_id_fk",
+          "tableFrom": "maps",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "maps_share_token_unique": {
+          "name": "maps_share_token_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "share_token"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.users": {
+      "name": "users",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "password_hash": {
+          "name": "password_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "display_name": {
+          "name": "display_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "users_email_unique": {
+          "name": "users_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.original_format": {
+      "name": "original_format",
+      "schema": "public",
+      "values": [
+        "jpeg",
+        "png",
+        "pdf",
+        "geotiff",
+        "ocad",
+        "oom"
+      ]
+    },
+    "public.processing_status": {
+      "name": "processing_status",
+      "schema": "public",
+      "values": [
+        "pending",
+        "processing",
+        "ready",
+        "failed"
+      ]
+    },
+    "public.transform_type": {
+      "name": "transform_type",
+      "schema": "public",
+      "values": [
+        "affine",
+        "tps"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
