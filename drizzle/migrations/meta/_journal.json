@@ -8,6 +8,13 @@
       "when": 1772531442800,
       "tag": "0000_lucky_turbo",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1772542627394,
+      "tag": "0001_broken_stepford_cuckoos",
+      "breakpoints": true
     }
   ]
 }
