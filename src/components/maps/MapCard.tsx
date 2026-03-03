@@ -1,4 +1,5 @@
 import type { Map } from '@/server/db/schema'
+import { DeleteMapButton } from './DeleteMapButton'
 import { MapFormatBadge } from './MapFormatBadge'
 import { MapStatusBadge } from './MapStatusBadge'
 
@@ -30,7 +31,10 @@ export const MapCard = ({ map }: MapCardProps) => {
         <MapStatusBadge status={map.processingStatus} />
       </div>
 
-      <p className="text-xs text-muted-foreground">Uploaded {uploadDate}</p>
+      <div className="flex items-center justify-between">
+        <p className="text-xs text-muted-foreground">Uploaded {uploadDate}</p>
+        <DeleteMapButton mapId={map.id} />
+      </div>
     </div>
   )
 }

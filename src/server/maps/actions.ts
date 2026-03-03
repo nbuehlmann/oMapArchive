@@ -1,11 +1,13 @@
 'use server'
 
+import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { auth } from '@/server/auth'
 import { db } from '@/server/db'
 import { maps, originalFormatEnum } from '@/server/db/schema'
-import { uploadOriginal } from '@/lib/storage/blob-client'
+import { deleteOriginal, uploadOriginal } from '@/lib/storage/blob-client'
 
 type OriginalFormat = (typeof originalFormatEnum.enumValues)[number]
 
@@ -107,4 +109,25 @@ export const uploadMapAction = async (
   })
 
   redirect('/maps')
+}
+
+export const deleteMapAction = async (mapId: string): Promise<void> => {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error('Not authenticated')
+
+  const map = await db
+    .select()
+    .from(maps)
+    .where(eq(maps.id, mapId))
+    .then((r) => r[0] ?? null)
+
+  if (!map) throw new Error('Map not found')
+  if (map.userId !== session.user.id) throw new Error('Forbidden')
+
+  // Best-effort file deletion — don't let a missing file block the DB delete
+  await deleteOriginal(map.originalFileUrl)
+
+  await db.delete(maps).where(eq(maps.id, mapId))
+
+  revalidatePath('/maps')
 }

@@ -34,3 +34,28 @@ export const uploadOriginal = async (
   await fs.writeFile(path.join(dir, filename), data)
   return `local:originals/${userId}/${mapId}/${filename}`
 }
+
+/**
+ * Deletes a map file from the originals store.
+ * Errors are swallowed — a missing file should not block DB record deletion.
+ */
+export const deleteOriginal = async (fileUrl: string): Promise<void> => {
+  if (fileUrl.startsWith('local:')) {
+    const relativePath = fileUrl.slice('local:'.length)
+    const fullPath = path.join(process.cwd(), '.local-storage', relativePath)
+    await fs.unlink(fullPath).catch(() => undefined)
+    return
+  }
+
+  if (env.AZURE_STORAGE_ACCOUNT_NAME && env.AZURE_STORAGE_SAS_TOKEN) {
+    const { BlobServiceClient } = await import('@azure/storage-blob')
+    const blobServiceClient = new BlobServiceClient(
+      `https://${env.AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net?${env.AZURE_STORAGE_SAS_TOKEN}`,
+    )
+    const containerClient = blobServiceClient.getContainerClient('originals')
+    const blobName = new URL(fileUrl).pathname.split('/originals/')[1]
+    if (blobName) {
+      await containerClient.deleteBlob(blobName).catch(() => undefined)
+    }
+  }
+}
