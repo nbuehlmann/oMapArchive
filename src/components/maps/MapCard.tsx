@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import type { Map } from '@/server/db/schema'
 import { DeleteMapButton } from './DeleteMapButton'
 import { MapFormatBadge } from './MapFormatBadge'
@@ -17,7 +18,9 @@ export const MapCard = ({ map }: MapCardProps) => {
   return (
     <div className="rounded-lg border border-border bg-card p-4 shadow-sm hover:shadow-md transition-shadow space-y-3">
       <div>
-        <h3 className="font-medium text-card-foreground leading-tight line-clamp-2">{map.title}</h3>
+        <Link href={`/maps/${map.id}`} className="hover:underline">
+          <h3 className="font-medium text-card-foreground leading-tight line-clamp-2">{map.title}</h3>
+        </Link>
         <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
           {map.scale && <span>1 : {map.scale.toLocaleString()}</span>}
           {map.equidistance && <span>{map.equidistance} m</span>}
