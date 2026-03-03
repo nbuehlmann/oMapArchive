@@ -8,6 +8,8 @@ import path from 'path'
 import { type NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/server/auth'
 
+const LOCAL_STORAGE_ROOT = path.resolve(process.cwd(), '.local-storage')
+
 const CONTENT_TYPES: Record<string, string> = {
   png: 'image/png',
   jpg: 'image/jpeg',
@@ -29,22 +31,22 @@ export const GET = async (req: NextRequest): Promise<NextResponse> => {
     return new NextResponse('Missing path', { status: 400 })
   }
 
-  // Prevent directory traversal — reject any path component that starts with '..'
-  const parts = filePath.split('/')
-  if (parts.some((p) => p === '..' || p === '')) {
+  // Resolve to an absolute path and confirm it stays within LOCAL_STORAGE_ROOT.
+  // This is the canonical defence against path-traversal: no matter what the
+  // input contains (e.g. "../", "%2e%2e/", null bytes), the check below catches it.
+  const resolved = path.resolve(LOCAL_STORAGE_ROOT, filePath)
+  if (!resolved.startsWith(LOCAL_STORAGE_ROOT + path.sep)) {
     return new NextResponse('Invalid path', { status: 400 })
   }
 
-  const fullPath = path.join(process.cwd(), '.local-storage', ...parts)
-
   let data: Buffer
   try {
-    data = await fs.readFile(fullPath)
+    data = await fs.readFile(resolved)
   } catch {
     return new NextResponse('Not found', { status: 404 })
   }
 
-  const ext = parts[parts.length - 1]?.split('.').pop()?.toLowerCase() ?? ''
+  const ext = resolved.split('.').pop()?.toLowerCase() ?? ''
   const contentType = CONTENT_TYPES[ext] ?? 'application/octet-stream'
 
   return new NextResponse(new Uint8Array(data), {
