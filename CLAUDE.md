@@ -381,3 +381,58 @@ expect(component.state.isLoading).toBe(true)
 | Never commit `.env` or `.env.local` files | Contains secrets; `.env.example` is the committed reference |
 | Never disable TypeScript strict checks with `@ts-ignore` without a comment | If suppression is truly needed, use `@ts-expect-error` with an explanation |
 | Never put more than one major concern in a component | Keep components small and single-responsibility |
+
+---
+
+## Authoritative Requirements Source
+
+The file `REQUIREMENTS.md` is the canonical source of structured requirement rules and design document generation standards.
+
+Before performing any of the following tasks, you MUST:
+
+* Read `REQUIREMENTS.md` in full
+* Treat it as binding specification
+* Follow all generation rules defined in that file
+* Do not contradict or bypass its constraints
+
+This applies to:
+
+* GitHub issue → design document generation
+* Architecture generation
+* Security design output
+* Workflow design
+* CI/CD automation
+* Prompt distribution features
+* Policy design
+
+If `REQUIREMENTS.md` conflicts with any other instruction in this repository, `REQUIREMENTS.md` takes precedence unless explicitly overridden in writing in this file.
+
+---
+
+## Mandatory Pre-Execution Rule
+
+Before generating structured design documentation:
+
+1. Load `REQUIREMENTS.md`
+2. Identify required output structure
+3. Apply all strict generation rules
+4. Apply security baseline controls
+5. Produce a complete document
+
+Do not skip this step.
+
+---
+
+## File Hierarchy and Precedence
+
+Order of authority:
+
+1. REQUIREMENTS.md (generation rules + design template)
+2. SECURITY.md (security constraints and policies)
+3. ARCHITECTURE.md (system structure and conventions)
+4. CLAUDE.md (behavioral execution instructions)
+
+If ambiguity exists:
+
+* Security constraints override architectural convenience.
+* Requirements override stylistic preferences.
