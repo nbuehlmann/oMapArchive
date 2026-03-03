@@ -14,6 +14,18 @@ import { ShareToggle } from '@/components/maps/ShareToggle'
 
 export const metadata: Metadata = { title: 'Map Detail — oMapArchive' }
 
+/**
+ * Converts a `local:<path>` storage URI into a URL the browser can fetch.
+ * In production, processedUrl is already an HTTPS blob URL and is returned unchanged.
+ */
+const resolveFileUrl = (url: string): string => {
+  if (url.startsWith('local:')) {
+    const filePath = url.slice('local:'.length)
+    return `/api/local-file?path=${encodeURIComponent(filePath)}`
+  }
+  return url
+}
+
 type Props = {
   params: Promise<{ id: string }>
 }
@@ -113,7 +125,9 @@ const MapDetailPage = async ({ params }: Props) => {
         />
       )}
 
-      {map.processedUrl && <MapViewer src={map.processedUrl} alt={map.title} />}
+      {map.processedUrl && (
+        <MapViewer src={resolveFileUrl(map.processedUrl)} alt={map.title} />
+      )}
 
       {canGeoreference && (
         <Link
