@@ -8,7 +8,7 @@ const securityHeaders = [
 ]
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ['sharp', 'pdf2pic', 'ioredis', 'bullmq', 'geotiff', 'ocad2geojson'],
+  serverExternalPackages: ['sharp', 'pdf2pic', 'ioredis', 'bullmq', 'geotiff', 'ocad2geojson', 'maplibre-gl'],
   experimental: {
     serverActions: {
       bodySizeLimit: '15mb',

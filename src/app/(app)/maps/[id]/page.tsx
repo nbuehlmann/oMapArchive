@@ -11,20 +11,9 @@ import { MapStatusBadge } from '@/components/maps/MapStatusBadge'
 import { MapViewer } from '@/components/maps/MapViewer'
 import { MapStatusPoller } from '@/components/maps/MapStatusPoller'
 import { ShareToggle } from '@/components/maps/ShareToggle'
+import { resolveFileUrl } from '@/lib/resolve-file-url'
 
 export const metadata: Metadata = { title: 'Map Detail — oMapArchive' }
-
-/**
- * Converts a `local:<path>` storage URI into a URL the browser can fetch.
- * In production, processedUrl is already an HTTPS blob URL and is returned unchanged.
- */
-const resolveFileUrl = (url: string): string => {
-  if (url.startsWith('local:')) {
-    const filePath = url.slice('local:'.length)
-    return `/api/local-file?path=${encodeURIComponent(filePath)}`
-  }
-  return url
-}
 
 type Props = {
   params: Promise<{ id: string }>
