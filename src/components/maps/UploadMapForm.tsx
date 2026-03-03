@@ -38,7 +38,7 @@ export const UploadMapForm = () => {
             Scale <span className="text-destructive">*</span>
           </label>
           <div className="flex items-center gap-1.5">
-            <span className="text-sm text-muted-foreground">1 :</span>
+            <span className="shrink-0 text-sm text-muted-foreground">1 :</span>
             <input
               id="scale"
               name="scale"
@@ -46,7 +46,7 @@ export const UploadMapForm = () => {
               min="1"
               required
               disabled={isPending}
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+              className="min-w-0 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
               placeholder="10000"
             />
           </div>
@@ -61,7 +61,7 @@ export const UploadMapForm = () => {
             name="equidistance"
             type="number"
             min="0.1"
-            step="0.5"
+            step="0.1"
             disabled={isPending}
             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
             placeholder="5"
