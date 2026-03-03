@@ -1,8 +1,9 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { auth } from '@/server/auth'
 import { db } from '@/server/db'
@@ -137,4 +138,55 @@ export const deleteMapAction = async (mapId: string): Promise<void> => {
   await db.delete(maps).where(eq(maps.id, mapId))
 
   revalidatePath('/maps')
+}
+
+export const getMapStatusAction = async (
+  mapId: string,
+): Promise<'pending' | 'processing' | 'ready' | 'failed' | null> => {
+  const session = await auth()
+  if (!session?.user?.id) return null
+
+  const row = await db
+    .select({ processingStatus: maps.processingStatus })
+    .from(maps)
+    .where(and(eq(maps.id, mapId), eq(maps.userId, session.user.id)))
+    .then((r) => r[0] ?? null)
+
+  return row?.processingStatus ?? null
+}
+
+export const toggleMapPublicAction = async (
+  mapId: string,
+): Promise<{ isPublic: boolean; shareUrl: string | null }> => {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error('Not authenticated')
+
+  const map = await db
+    .select({ isPublic: maps.isPublic, shareToken: maps.shareToken })
+    .from(maps)
+    .where(and(eq(maps.id, mapId), eq(maps.userId, session.user.id)))
+    .then((r) => r[0] ?? null)
+
+  if (!map) throw new Error('Map not found')
+
+  const headersList = await headers()
+  const host = headersList.get('host') ?? 'localhost:3000'
+  const protocol = host.startsWith('localhost') ? 'http' : 'https'
+
+  if (map.isPublic) {
+    await db
+      .update(maps)
+      .set({ isPublic: false, shareToken: null })
+      .where(eq(maps.id, mapId))
+    revalidatePath('/maps')
+    return { isPublic: false, shareUrl: null }
+  } else {
+    const shareToken = crypto.randomUUID()
+    await db
+      .update(maps)
+      .set({ isPublic: true, shareToken })
+      .where(eq(maps.id, mapId))
+    revalidatePath('/maps')
+    return { isPublic: true, shareUrl: `${protocol}://${host}/share/${shareToken}` }
+  }
 }
