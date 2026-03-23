@@ -28,7 +28,7 @@
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.1",
     "geotiff": "^3.0.4",
-    "ioredis": "^5.10.0",
+    "ioredis": "^5.10.1",
     "next": "^16.1.6",
     "next-auth": "5.0.0-beta.30",
     "ocad2geojson": "^2.1.20",
